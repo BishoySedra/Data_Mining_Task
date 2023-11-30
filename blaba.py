@@ -1,110 +1,146 @@
 import pandas as pd
 
 
-
 def read_data_from_excel(file_path):
-# read by default 1st sheet of an excel file
-        data = pd.read_excel(file_path)
-        first_column = data.columns[0]
-        if first_column.capitalize() == "Tid" or first_column.capitalize() == "Sid":
-            Horizontal_Data = 1
-        itemset_column = data.columns[1]
-        data_in_list = data[[first_column, itemset_column]].values.tolist()
-        for i in range(len(data_in_list)):
-            data_in_list[i][1] = str(data_in_list[i][1]).split(',')
-            
-        data = []
-        for item in data_in_list:
-            number = item[0]
-            letters = item[1]
-            for letter in letters:
-                data.append([number,letter])
-        
-        df = pd.DataFrame(data,columns = ["TiD" , "items"])
-        df.drop_duplicates(inplace=True)
-        return df
-    
-    
-def BadBunny(pathfile):
-    orginal  = {}
-    df = read_data_from_excel(pathfile)
-    for i in range(len(df)):
-        orginal[df.iloc[i][1]] = []
-    for i in range(len(df)):
-        orginal[df.iloc[i][1]].append(df.iloc[i][0])
-    return orginal
-    
+    data = pd.read_excel(file_path)
+    first_column = data.columns[0]
 
-df = check_data_format('Horizontal_Format.xlsx')
-# print(df)
+    if "id" in first_column.lower():
+        itemSet_column = data.columns[1]
+        data_in_list = data[[first_column, itemSet_column]].values.tolist()
+        data = [
+            (number, letter)
+            for number, letters in data_in_list
+            for letter in str(letters).split(",")
+        ]
 
-def data_pruning(df,min_sup):
-    res = {}
-    for i in df.items():
-        # m : 1 2 3
-        if len(i[1]) >= min_sup:
-            res[i[0]] = i[1]
-    
-    return res
-
-# jimmy nitron
-def fun(v1, v2):
-    i = 0
-    j = 0
-    v = []
-    while i < len(v1) and j < len(v2):
-        while i < len(v1) and j < len(v2) and v1[i] != v2[j]:
-            if v1[i] < v2[j]:
-                i += 1
-            else:
-                j += 1
-        if i < len(v1) and j < len(v2) and v1[i] == v2[j]:
-            v.append(v1[i])
-            i += 1
-            j += 1
-    return v
-
-def Key_item_comp(df,min_sub):
-
-    keys = []
-    king = {}
-    cnt = 1
+    df = pd.DataFrame(data, columns=["TID", "item"])
+    df.drop_duplicates(inplace=True)
+    return df
 
 
-    # data pruning
-    df = data_pruning(df,min_sub)
+def bad_bunny(file_path):
+    df = read_data_from_excel(file_path)
+    original = df.groupby("item")["TID"].apply(list).to_dict()
+    return original
+
+
+def data_pruning(df, min_sup):
+    return {item: tid_list for item, tid_list in df.items() if len(tid_list) >= min_sup}
+
+
+def key_item_comp(df, min_sub):
     keys = list(df.keys())
-    n = len(keys)
+    king = {}
 
+    for i in range(len(keys)):
+        for j in range(i + 1, len(keys)):
+            if len(keys[i]) > 1 and keys[i][:-1] != keys[j][:-1]:
+                break
 
-    # compination
-    for i in keys:
-        for j in keys[cnt:n]:
-            if len(i) > 1:
-                if i[0:len(i) - 1] != j[0:len(j) - 1]:
-                    break
-            # (M,O) : 1, 2, 3
-            candidate = fun(df[i],df[j])
-            name = str(i + j[len(j) - 1:])
+            candidate = fun(df[keys[i]], df[keys[j]])
+            name = keys[i] + keys[j][-1]
             king[name] = candidate
-        cnt = cnt + 1
-    
-    # for frequent set more than of equal 2
-    king = data_pruning(king,min_sub)
+
+    king = data_pruning(king, min_sub)
     return king
 
 
+def run(df, min_sup):
+    king = [data_pruning(df, min_sup)]
 
-def run(df,min_sup):
+    while True:
+        df = key_item_comp(df, min_sup)
+        if not df:
+            break
+        king.append(df)
+
+    return king
+
+
+def fun(v1, v2):
+    return list(set(v1) & set(v2))
+
+
+def generate_association_rules(frequent_itemsets, min_confidence):
+    levels = len(frequent_itemsets)
+
+    if levels == 1:
+        print("No Association Rules can be generated!\n")
+        return
+
+    all_rules = []
+
+    for level in range(1, levels):
+        for itemset, support in frequent_itemsets[level].items():
+            for i in range(len(itemset)):
+                before = itemset[:i]
+                after = itemset[i:]
+                # print(before)
+                # print(after)
+                before_support = frequent_itemsets[level][before]
+                confidence = len(support) / before_support
+
+                if confidence >= min_confidence:
+                    rule = {"before": before, "after": after, "confidence": confidence}
+                    all_rules.append(rule)
+
+    # Print the generated association rules
+    for rule in all_rules:
+        print(
+            f"Rule: {rule['before']} => {rule['after']}, Confidence: {rule['confidence']}"
+        )
+
+
+def generate_association_rules(frequent_itemsets, min_confidence):
+    levels = len(frequent_itemsets)
+
+    if levels == 1:
+        print("No Association Rules can be generated!\n")
+        return
+
+    all_rules = []
+
+    for level in range(1, levels):
+        for itemset, support in frequent_itemsets[level].items():
+            for i in range(len(itemset)):
+                before = itemset[:i]
+                after = itemset[i:]
+                print(before)
+                print(after)
+                before_support = frequent_itemsets[level][before]
+                confidence = len(support) / before_support
+
+                if confidence >= min_confidence:
+                    rule = {"before": before, "after": after, "confidence": confidence}
+                    all_rules.append(rule)
+
+    # Print the generated association rules
+    for rule in all_rules:
+        print(
+            f"Rule: {rule['before']} => {rule['after']}, Confidence: {rule['confidence']}"
+        )
+
+
+def run(df, min_sup):
     king = []
     queen = df
-    king.append(data_pruning(queen,min_sup))
+    king.append(data_pruning(queen, min_sup))
     while True:
-        queen = Key_item_comp(queen,min_sup)
+        queen = key_item_comp(queen, min_sup)
         if queen == {}:
             break
         king.append(queen)
     return king
 
-df = run(df,3)
-print(df)
+
+df = bad_bunny("Horizontal_Format.xlsx")
+result = run(df, 4)
+print(result)
+
+for level in range(len(result)):
+    print(f"L{level + 1}:")
+    for item, TID_SET in result[level].items():
+        print(item, f"Support is {len(TID_SET)}\n")
+
+# generate_association_rules(df, 0.5)
