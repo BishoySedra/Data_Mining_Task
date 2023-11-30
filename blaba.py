@@ -25,7 +25,7 @@ def read_data_from_excel(file_path):
         return df
     
     
-def check_data_format(pathfile):
+def BadBunny(pathfile):
     orginal  = {}
     df = read_data_from_excel(pathfile)
     for i in range(len(df)):
