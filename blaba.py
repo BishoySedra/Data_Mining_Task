@@ -46,18 +46,6 @@ def key_item_comp(df, min_sub):
     return king
 
 
-def run(df, min_sup):
-    king = [data_pruning(df, min_sup)]
-
-    while True:
-        df = key_item_comp(df, min_sup)
-        if not df:
-            break
-        king.append(df)
-
-    return king
-
-
 def fun(v1, v2):
     return list(set(v1) & set(v2))
 
@@ -104,6 +92,7 @@ def run(df, min_sup):
     return king
 
 
+## running area
 df = bad_bunny("Horizontal_Format.xlsx")
 result = run(df, 4)
 print(result)
@@ -113,4 +102,4 @@ for level in range(len(result)):
     for item, TID_SET in result[level].items():
         print(item, f"Support is {len(TID_SET)}\n")
 
-generate_association_rules(df, 0.5)
+# generate_association_rules(df, 0.5)
