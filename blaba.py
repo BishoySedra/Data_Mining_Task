@@ -92,36 +92,6 @@ def generate_association_rules(frequent_itemsets, min_confidence):
         )
 
 
-def generate_association_rules(frequent_itemsets, min_confidence):
-    levels = len(frequent_itemsets)
-
-    if levels == 1:
-        print("No Association Rules can be generated!\n")
-        return
-
-    all_rules = []
-
-    for level in range(1, levels):
-        for itemset, support in frequent_itemsets[level].items():
-            for i in range(len(itemset)):
-                before = itemset[:i]
-                after = itemset[i:]
-                print(before)
-                print(after)
-                before_support = frequent_itemsets[level][before]
-                confidence = len(support) / before_support
-
-                if confidence >= min_confidence:
-                    rule = {"before": before, "after": after, "confidence": confidence}
-                    all_rules.append(rule)
-
-    # Print the generated association rules
-    for rule in all_rules:
-        print(
-            f"Rule: {rule['before']} => {rule['after']}, Confidence: {rule['confidence']}"
-        )
-
-
 def run(df, min_sup):
     king = []
     queen = df
@@ -143,4 +113,4 @@ for level in range(len(result)):
     for item, TID_SET in result[level].items():
         print(item, f"Support is {len(TID_SET)}\n")
 
-# generate_association_rules(df, 0.5)
+generate_association_rules(df, 0.5)
