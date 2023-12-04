@@ -245,11 +245,11 @@ def generate_association_rules(frequent_itemsets, min_confidence,number_trans):
 def print_all():
     print("\nThe strong association rules: ")
     for rule in strong_rules:
-        print(f"{rule['first_item']} => {rule['second_item']}  , Confidence= {rule['confidence']}")
+        print(f"{rule['first_item']} => {rule['second_item']}  , Confidence= {round(rule['confidence'],2)}")
     print('-'*50)
     print("\nThe lift : ")
     for rule in lift_list:
-        print(f"{rule['first_item']} => {rule['second_item']}  , lift = {rule['lift']}")
+        print(f"{rule['first_item']} => {rule['second_item']}  , lift = {round(rule['lift'],2)}")
         if rule['lift'] == 1:
             print("they are independent")
         elif rule['lift'] < 1:
@@ -274,15 +274,15 @@ def run(df, min_sup):
             break
         king.append(queen)
     return king
-# pathfile="blabla.xlsx"
-pathfile="Horizontal_Format.xlsx"
+pathfile="blabla.xlsx"
+# pathfile="Horizontal_Format.xlsx"
 df = pd.read_excel(pathfile)
 number_trans=len(df)
 
 df=check_data_format(pathfile)
-df=run(df,3)
+df=run(df,2)
 print('-'*50)
-generate_association_rules(df, 0.7,number_trans)
+generate_association_rules(df, 0.6,number_trans)
 
 # x=Key_item_comp(df,2)
 print_all()
