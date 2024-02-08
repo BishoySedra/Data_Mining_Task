@@ -34,13 +34,6 @@ Suppose you have an Excel file named `data.xlsx` with the following data:
 
 You can run the code with a minimum support of 2 and a minimum confidence of 0.6. The code will generate the association rules and display them in the console.
 
-### Screenshots
-
-Here are some screenshots showcasing the usage and results of the code:
-
-1. ![Screenshot 1](/screenshots/screenshot1.png)   *Description of the screenshot.*
-2. ![Screenshot 2](/screenshots/screenshot2.png)   *Description of the screenshot.*
-
 ## Acknowledgments
 
 - The code is based on the ECLAT algorithm for association rule mining.
